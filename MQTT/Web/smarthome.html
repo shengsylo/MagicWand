@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Control</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f39c12;
+            --background-color: #f5f7fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --status-color: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-top: 60px;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .device-card {
+            background-color: var(--card-background);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .device-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .device-name {
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .device-status {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--status-color);
+            font-weight: 300;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .developer-link {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .developer-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            padding: 10px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 30px;
+        }
+
+        .developer-link a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .value-display {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--secondary-color);
+            margin-top: 10px;
+        }
+
+        .control-card {
+            background-color: #e8f4ff;
+        }
+
+        .value-card {
+            background-color: #fff8e1;
+        }
+
+        @media (max-width: 768px) {
+            .device-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .device-card {
+                min-height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Home Control</h1>
+        
+        <h2>Controls</h2>
+        <div class="device-grid">
+            <div class="device-card control-card">
+                <div class="device-icon">💡</div>
+                <div class="device-name">Living Room Light</div>
+                <div class="device-status" id="lightStatus">Off</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="lightToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="device-card control-card">
+                <div class="device-icon">🪭</div>
+                <div class="device-name">Fan</div>
+                <div class="device-status" id="fanStatus">Off</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="fanToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="device-card control-card">
+                <div class="device-icon">🚪</div>
+                <div class="device-name">Front Door</div>
+                <div class="device-status" id="doorStatus">Close</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="doorToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="device-card control-card">
+                <div class="device-icon">📏</div>
+                <div class="device-name">Ultrasonic Sensor</div>
+                <div class="device-status" id="ultrasonicStatus">Off</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="ultrasonicToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="device-card control-card">
+                <div class="device-icon">🌡️</div>
+                <div class="device-name">Temperature Sensor</div>
+                <div class="device-status" id="temperatureStatus">Off</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="temperatureToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="device-card control-card">
+                <div class="device-icon">💧</div>
+                <div class="device-name">Humidity Sensor</div>
+                <div class="device-status" id="humidityStatus">Off</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="humidityToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="device-card control-card">
+                <div class="device-icon">👋</div>
+                <div class="device-name">Gestures Sensor</div>
+                <div class="device-status" id="gesturesStatus">Off</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="gesturesToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <h2>Sensor Values</h2>
+        <div class="device-grid">
+            <div class="device-card value-card">
+                <div class="device-icon">📏</div>
+                <div class="device-name">Distance Value</div>
+                <div class="value-display" id="distanceValue">No object detected</div>
+            </div>
+            <div class="device-card value-card">
+                <div class="device-icon">🌡️</div>
+                <div class="device-name">Temperature Value</div>
+                <div class="value-display" id="temperatureValue">No temperature value received.</div>
+            </div>
+            <div class="device-card value-card">
+                <div class="device-icon">💧</div>
+                <div class="device-name">Humidity Value</div>
+                <div class="value-display" id="humidityValue">No humidity value received.</div>
+            </div>
+            <div class="device-card value-card">
+                <div class="device-icon">👋</div>
+                <div class="device-name">Gestures Value</div>
+                <div class="value-display" id="gesturesValue">No gestures detected.</div>
+            </div>
+        </div>
+        
+        <div class="developer-link">
+            <a href="../index.html">MQTT Developer Interface</a>
+        </div>
+    </div>
+    <script src="smart-home.js"></script>
+</body>
+</html>
