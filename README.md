@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-<title>The Smart Home Magician</title>
-</head>
 
 <body>
+<p>
 <b>*** Only works on <a href="https://docs.arduino.cc/hardware/nano-33-ble-sense/" target="_blank">Arduino Nano 33 Ble Sense </a> <code>(Rev1)</code>  ***</b>
+</p>
+<p>
 <b>*** The code is not supported on <a href="https://docs.arduino.cc/hardware/nano-33-ble-sense-rev2/" target="_blank">Arduino Nano 33 Ble Sense </a> <code>(Rev2)</code>  ***</b>
+</p>
 
 <h1 align="center">The Smart Home Magician</h1>
 
