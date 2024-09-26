@@ -106,6 +106,8 @@ Contributions are welcome! If you have ideas, bug fixes, or feature enhancements
 
 ---
 
+## Output
+
 <p align="center">
   <img src="Image/Results.png" alt="Result" width="400"> 
   <img src="Image/SmartHomeControl.png" alt="SmartHomeControl" width="400"> 
